@@ -4,9 +4,9 @@
 
 ## Installation
 
-- To use this ***ethltk*** package, first install it using pip:
+- To use this **ethltk** package, first install it using pip:
 
-  ```pyhton
+  ```python
     pip install ethltk
   ```
 
@@ -16,7 +16,7 @@
 
 - Import the package in your python script and call appropriate functions:
   
-  ```pyhton
+  ```python
     from ethltk import amharic_preprocessor, clean_amharic
 
     # Preprocess text using default preprocess functions in the pipeline

@@ -4,7 +4,7 @@
 import re
 import emoji
      
-
+# Regular expression
 REGEX_PATTERN_URLS = re.compile(r'[^ ]+\.[^ ]+')
 REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
 REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
