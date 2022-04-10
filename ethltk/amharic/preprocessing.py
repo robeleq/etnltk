@@ -5,12 +5,12 @@ import re
 import emoji
      
 # Regular expression
-REGEX_PATTERN_URLS = re.compile(r'[^ ]+\.[^ ]+')
+REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
 REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
 REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
 REGEX_PATTERN_PUNCTUATION = re.compile(r'[\!\@\#\$\%\^\«\»\&\*\(\)\…\[\]\{\}\;\“\”\›\’\‘\"\'\:\,\.\‹\/\<\>\?\\\\|\`\´\~\-\_\=\+\፡\።\፤\;\፦\፥\፧\፨\፠\፣]')
 REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
-REGEX_PATTERN_DIGITS = re.compile(r"\b\d+\b")
+REGEX_PATTERN_DIGITS = re.compile(r"\d+")
 REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
 # TODO: add more special characters
 SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
@@ -82,6 +82,6 @@ def _is_chinese_char(cp) -> bool:
         return True
 
     return False
-    
+
 def _replace(text: str, pattern: str, replace: str = '') -> str:
-    return pattern.sub(replace, text)
+    return pattern.sub(replace, text, re.UNICODE)
