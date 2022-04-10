@@ -3,6 +3,12 @@ from typing import Callable, List, Optional
 from ethltk.amharic import preprocessing
 amharic_preprocessor = preprocessing
 
+from ethltk.amharic import normalization
+amharic_normalizer = normalization
+
+from ethltk.amharic import tokenization
+amharic_tokenizer = tokenization
+
 DEFAULT_PIPELINE: List[Callable] = [
     amharic_preprocessor.remove_links,
     amharic_preprocessor.remove_tags,
@@ -28,3 +34,12 @@ def clean_amharic(text: str, pipeline: Optional[List[Callable]] = None) -> str:
     for func in pipeline:
         text = func(text)
     return text
+
+def amlp(text: str, do_normalize: bool) -> str:
+    if text is None:
+        raise ValueError("amlp: `text` can't be `None`")
+    # clean
+    # word tokens
+    # sent tokens
+    # return dic {clean, word, sent}    
+    pass
