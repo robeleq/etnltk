@@ -1,10 +1,12 @@
 # coding=utf-8
 #
-
 import re
+import json
+import pkgutil
+from textsearch import TextSearch
 
-#
-char_replacement_patterns = [
+# Amharic Character Level Normalzation (ACLF)
+CHAR_REPLACEMENT_PATTERNS = [
     (r'[ሃኅኃሐሓኻ]','ሀ'),
     (r'[ሑኁዅ]','ሁ'),
     (r'[ኂሒኺ]','ሂ'),
@@ -33,6 +35,10 @@ char_replacement_patterns = [
     (r'[ጾ]','ፆ'),
     (r'[ቊ]','ቁ'),
     (r'[ኵ]','ኩ'),
+]
+
+# Amharic Labialized Character Normalzation (ALCN)
+LABIALIZED_CHAR_REPLACEMENT_PATTERNS = [
     (r'(ሉ[ዋአ])','ሏ'),
     (r'(ሙ[ዋአ])','ሟ'),
     (r'(ቱ[ዋአ])','ቷ'),
@@ -55,32 +61,38 @@ char_replacement_patterns = [
     (r'(ፉ[ዋአ])','ፏ')
 ]
 
-short_forms = [
-    (r'([ዓአ][./]ም)','ዓመተ ምህረት'),
-    (r'([ዶ][./]ር)','ዶክተር'),
-    (r'[ጠ][./]ሚ','ጠቅላይ ሚኒስተር'),
-    (r'[ኪ][./]ሜ','ኪሎ ሜትር'),
-    (r'[ት][./]ት','ትምህርት'),
-    (r'[ወ][./]ሮ','ወይዘሮ'),
-    (r'[አ][./]አ','አዲስ አበባ')
-]
+# Load the Amharic short forms dictionary
+json_open = pkgutil.get_data("amharic", "data/short_forms_dict.json")
+short_forms_dict = json.loads(json_open.decode("utf-8"))
 
-short_form_patterns = [(re.compile(regex), repl) for (regex, repl) in short_forms]
-char_patterns = [(re.compile(regex), repl) for (regex, repl) in char_replacement_patterns]
+ts_short_forms = TextSearch("insensitive", "norm")
+ts_short_forms.add(short_forms_dict)
+
+replacers = {
+    (False, False): ts_short_forms,
+}
+
+char_level_patterns = [(re.compile(regex), repl) for (regex, repl) in CHAR_REPLACEMENT_PATTERNS]
+abialized_char_patterns = [(re.compile(regex), repl) for (regex, repl) in LABIALIZED_CHAR_REPLACEMENT_PATTERNS]
 
 def normalize_char(text: str) -> str:
     # Character Level Normalization such as ጸሀይ and ፀሐይ.
     s = text
-    for(pattern, repl) in char_patterns:
+    for(pattern, repl) in char_level_patterns:
         s = _replace(s, pattern, repl)
     return s
 
-def expand_short_form(text: str) -> str:
-    # Short Form Expansion such as ጠ/ሚ to ጠቅላይ ሚኒስተር.
+def normalize_labialized(text: str) -> str:
+    # Labialized Character Normalzation such as ሞልቱዋል to ሞልቷል
     s = text
-    for(pattern, repl) in short_form_patterns:
+    for(pattern, repl) in abialized_char_patterns:
         s = _replace(s, pattern, repl)
     return s
+
+def expand_short_forms(text: str) -> str:
+    # Short Form Expansion such as ጠ/ሚ to ጠቅላይ ሚኒስተር.
+    ts = replacers[(False, False)]
+    return ts.replace(text)
 
 def _replace(text: str, pattern: str, replace: str = '') -> str:
     return pattern.sub(replace, text, re.UNICODE)
