@@ -1,5 +1,6 @@
 # coding=utf-8
 #
+import os
 import re
 import json
 import pkgutil
@@ -62,8 +63,11 @@ LABIALIZED_CHAR_REPLACEMENT_PATTERNS = [
 ]
 
 # Load the Amharic short forms dictionary
-json_open = pkgutil.get_data("amharic", "data/short_forms_dict.json")
-short_forms_dict = json.loads(json_open.decode("utf-8"))
+json_data = pkgutil.get_data("ethltk", "amharic/data/short_forms_dict.json")
+short_forms_dict = json.loads(json_data.decode("utf-8"))
+
+# Update the short_forms_dict to support both `.` and `/`` patterns like አ.አ and አ/አ
+short_forms_dict.update({k.replace(".", "/"): v for k, v in short_forms_dict.items()})
 
 ts_short_forms = TextSearch("insensitive", "norm")
 ts_short_forms.add(short_forms_dict)
