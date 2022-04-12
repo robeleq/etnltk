@@ -48,6 +48,11 @@ def remove_digits(text: str):
     """Remove all digits from a text string"""
     return _replace(text, pattern=REGEX_PATTERN_DIGITS, replace='')
 
+def remove_ethiopic_digits(text):
+    """Remove all ethiopic digits from a text string"""
+    output = [char for char in text if _is_ethiopic_digit(char) is not True]
+    return "".join(output)
+
 def remove_english_chars(text: str) -> str:
     """Remove ascii characters from a text string"""
     return _replace(text, pattern=REGEX_PATTERN_ASCII, replace='')
@@ -81,6 +86,14 @@ def _is_chinese_char(cp) -> bool:
             (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
         return True
 
+    return False
+
+def _is_ethiopic_digit(char):
+    cp = ord(char)
+    if ((cp >= 0x1369 and cp <= 0x136F) or  # ፩ - ፯ 
+        (cp >= 0x1370 and cp <= 0x137C)):   # ፰ - ፼
+        return True
+    
     return False
 
 def _replace(text: str, pattern: str, replace: str = '') -> str:
