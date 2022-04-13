@@ -2,7 +2,8 @@ from ethltk.amharic import (
     amharic_preprocessor,
     amharic_normalizer,
     amharic_tokenizer,
-    clean_amharic
+    clean_amharic,
+    normalize_amharic
 )
 
 from ethltk.oromiffa import (

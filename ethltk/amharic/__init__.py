@@ -35,6 +35,13 @@ def clean_amharic(text: str, pipeline: Optional[List[Callable]] = None) -> str:
         text = func(text)
     return text
 
+def normalize_amharic(text: str, labialized=True, expand_shortened=True) -> str:
+    """ Nomalize an input text by executing a series of nomalization functions specified in the argument """
+    if text is None:
+        raise ValueError("normalize_amharic: `text` can't be `None`")
+    
+    return amharic_normalizer.normalize(text, labialized, expand_shortened)
+
 def amlp(text: str, do_normalize: bool) -> str:
     if text is None:
         raise ValueError("amlp: `text` can't be `None`")

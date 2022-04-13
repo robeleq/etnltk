@@ -1,5 +1,7 @@
 # Ethiopian Language Toolkit (ethltk)
 
+- Under construction! Not ready for use yet! Currently experimenting :-)
+
 ## Applications
 
 ## Installation
