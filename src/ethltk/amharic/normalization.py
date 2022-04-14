@@ -1,9 +1,10 @@
 # coding=utf-8
 #
-import os
-import re
+# Standard libraries
 import json
 import pkgutil
+
+# Third party libraries
 from textsearch import TextSearch
 
 def _load_json_data(name: str):

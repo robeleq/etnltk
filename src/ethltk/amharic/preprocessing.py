@@ -1,19 +1,21 @@
 # coding=utf-8
 #
-
+# Standard libraries
 import re
+
+# Third party libraries
 import emoji
      
 # Regular expression
-REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
-REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
-REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
-REGEX_PATTERN_PUNCTUATION = re.compile(r'[\!\@\#\$\%\^\«\»\&\*\(\)\…\[\]\{\}\;\“\”\›\’\‘\"\'\:\,\.\‹\/\<\>\?\\\\|\`\´\~\-\_\=\+\፡\።\፤\;\፦\፥\፧\፨\፠\፣]')
-REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
-REGEX_PATTERN_DIGITS = re.compile(r"\d+")
-REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
+__REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
+__REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
+__REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
+__REGEX_PATTERN_PUNCTUATION = re.compile(r'[\!\@\#\$\%\^\«\»\&\*\(\)\…\[\]\{\}\;\“\”\›\’\‘\"\'\:\,\.\‹\/\<\>\?\\\\|\`\´\~\-\_\=\+\፡\።\፤\;\፦\፥\፧\፨\፠\፣]')
+__REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
+__REGEX_PATTERN_DIGITS = re.compile(r"\d+")
+__REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
 # TODO: add more special characters
-SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
+__SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
 
 
 def remove_whitespaces(text: str) -> str:
@@ -22,11 +24,11 @@ def remove_whitespaces(text: str) -> str:
 
 def remove_links(text: str) -> str:
     """Remove URLs from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_URLS, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_URLS, replace='')
 
 def remove_tags(text: str) -> str:
     """Remove HTML tag from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_TAGS, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_TAGS, replace='')
 
 def remove_emojis(text: str) -> str:
     """Remove emojis from a text string"""
@@ -34,39 +36,39 @@ def remove_emojis(text: str) -> str:
 
 def remove_email(text: str) -> str:
     """ Remove email from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_EMAIL, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_EMAIL, replace='')
 
 def remove_punct(text: str) -> str:
     """Remove punctuations from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_PUNCTUATION, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_PUNCTUATION, replace='')
 
 def remove_special_characters(text: str) -> str:
     """ Removes special characters from a text string"""
-    return text.translate(str.maketrans('', '', SPECIAL_CHARACTERS))
+    return text.translate(str.maketrans('', '', __SPECIAL_CHARACTERS))
 
 def remove_digits(text: str):
     """Remove all digits from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_DIGITS, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_DIGITS, replace='')
 
 def remove_ethiopic_digits(text):
     """Remove all ethiopic digits from a text string"""
-    output = [char for char in text if _is_ethiopic_digit(char) is not True]
+    output = [char for char in text if __is_ethiopic_digit(char) is not True]
     return "".join(output)
 
 def remove_english_chars(text: str) -> str:
     """Remove ascii characters from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_ASCII, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_ASCII, replace='')
 
 def remove_arabic_chars(text: str) -> str:
     """Remove arabic characters and numerals from a text string"""
-    return _replace(text, pattern=REGEX_PATTERN_ARABIC, replace='')
+    return __replace(text, pattern=__REGEX_PATTERN_ARABIC, replace='')
 
 def remove_chinese_chars(text: str) -> str:
     """Remove chinese characters from a text string"""
-    output = [char for char in text if _is_chinese_char(ord(char)) is not True]
+    output = [char for char in text if __is_chinese_char(ord(char)) is not True]
     return "".join(output)
 
-def _is_chinese_char(cp) -> bool:
+def __is_chinese_char(cp) -> bool:
     """Checks whether CP is the codepoint of a CJK character."""
     # This defines a "chinese character" as anything in the CJK Unicode block:
     #   https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)
@@ -88,7 +90,7 @@ def _is_chinese_char(cp) -> bool:
 
     return False
 
-def _is_ethiopic_digit(char):
+def __is_ethiopic_digit(char):
     cp = ord(char)
     if ((cp >= 0x1369 and cp <= 0x136F) or  # ፩ - ፯ 
         (cp >= 0x1370 and cp <= 0x137C)):   # ፰ - ፼
@@ -96,5 +98,5 @@ def _is_ethiopic_digit(char):
     
     return False
 
-def _replace(text: str, pattern: str, replace: str = '') -> str:
+def __replace(text: str, pattern: str, replace: str = '') -> str:
     return pattern.sub(replace, text, re.UNICODE)
