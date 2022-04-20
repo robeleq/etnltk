@@ -1,3 +1,4 @@
+'''
 from . import amharic
 amharic_preprocessor = amharic.preprocessing
 amharic_normalizer = amharic.normalization
@@ -12,3 +13,19 @@ from ethltk.oromiffa import (
     OromiffaPreprocessor,
     clean_oromiffa
 )
+'''
+
+import os
+from .amharic import AmharicText, Word, WordList
+
+__version__ = '0.0.10'
+__license__ = 'MIT'
+__author__ = 'Robel Equbasilassie'
+
+PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+__all__ = [
+    'AmharicText',
+    'Word',
+    'WordList',
+]

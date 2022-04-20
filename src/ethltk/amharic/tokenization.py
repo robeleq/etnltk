@@ -2,136 +2,234 @@
 #
 # Standard libraries
 import re
-from secrets import token_urlsafe
-from typing import List, Union
+import unicodedata
+from typing import List
 
 # ethltk libraries
-from .normalization import expand_short_forms
+from .preprocessing import remove_ethiopic_punct, remove_non_ethiopic
+from .normalization import expand_short_forms, normalize_punct
 
-
-class WhitespaceTokenizer(object):
-    r"""
-    Tokenize a string on whitespace (space, tab, newline).
-    In general, users should use the string ``split()`` method instead.
-    
+# Whitespace Tokenizer
+def whitespace_tokenize(text: str) -> str:
+    """Tokenize a string on whitespace (space, tab, newline).
     """
+    text = text.strip()
+    if not text:
+        return []
+    # Remove extra spaces, tabs, and new lines
+    tokens = text.split()
+    return tokens
 
-    def __init__(self):
-        self._pattern = r"\s+"
-        self._flag = re.UNICODE
-        self._regexp = re.compile(self._pattern, self._flag)
-        
+# Line Tokenizer
+class LineTokenizer(object):
+    def tokenize(self, text: str):
+        """Tokenize text by newline.
+        """
+        lines = [
+            line for line in text.splitlines() if line != ""
+        ]
+        return lines
+
+class RegexpTokenizer():
+    """A tokenizer that splits a string using a regular expression, which
+    matches either the tokens or the separators between tokens.
+
+    """
+    def __init__(
+        self,
+        pattern,
+        gaps=False,
+        discard_empty=True,
+        flags=re.UNICODE | re.MULTILINE | re.DOTALL,
+    ):
+        # If they gave us a regexp object, extract the pattern.
+        pattern = getattr(pattern, "pattern", pattern)
+
+        self._pattern = pattern
+        self._gaps = gaps
+        self._discard_empty = discard_empty
+        self._flags = flags
+        self._regexp = None
+
+
+    def _check_regexp(self):
+        if self._regexp is None:
+            self._regexp = re.compile(self._pattern, self._flags)
+
     def tokenize(self, text):
-        words = self._regexp.split(text)
-        return [word.strip() for word in words if word]
-            
+        self._check_regexp()
+        # If our regexp matches gaps, use re.split:
+        if self._gaps:
+            if self._discard_empty:
+                return [tok for tok in self._regexp.split(text) if tok]
+            else:
+                return self._regexp.split(text)
+
+        # If our regexp matches tokens, use re.findall:
+        else:
+            return self._regexp.findall(text)
+
     def __repr__(self):
-        return "{}(pattern={!r}, flags={!r})".format(
+        return "{}(pattern={!r}, gaps={!r}, discard_empty={!r}, flags={!r})".format(
             self.__class__.__name__,
             self._pattern,
-            self._flag,
+            self._gaps,
+            self._discard_empty,
+            self._flags,
         )
 
-class PunctTokenizer(object):
-    """
-    Splits punctuation on a piece of text.
+PUNCTUATIONS = [
+    '!', '"', '#', '$', '%', '&', "'", '(', ')',\
+    '*', '+', ',', '-', ':', ';', '<', '=', '>', '?',\
+    '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',\
+    '።', '፤', ';', '፦', '፥', '፧', '፨', '፠', '፣'
+]
 
-    """
+class RegexPunctTokenizer(object):
+    def __init__(self, punctuation: List[str] = None):
+        """Split  on a text.
+       
+        Args:
+            punctuation (List[str], optional): list of punctuation marks. 
+            Defaults to None.
+        """
+        if punctuation:
+            self.punctuation = punctuation
+        else:
+            # Default punctuation
+            self.punctuation = PUNCTUATIONS
+        
+        self.punctuation_regex = "".join(self.punctuation)
+        self.pattern = re.compile(r'[\s{}]+'.format(re.escape(self.punctuation_regex)))
     
     def tokenize(self, text: str) -> List[str]:
+        """Method for tokenizing sentences with regular expressions
+
+        Args:
+            text (str): text to be tokenized into sentences
+
+        Returns:
+            List[str]: tokenized sentence list
         """
-        Return a tokenized copy of `text` 
+        punct_splits = [
+           punct_split for punct_split in re.split(self.pattern, text) if len(punct_split.strip())
+        ]
+        return punct_splits
+
+ETHIOPIC_SENT_PUNCTUATION = ("፤", "፥", "።")
+
+class EthiopicSentenceTokenizer(object):
+    def __init__(self, sent_end_chars: List[str] = None):
+        """This tokenizer segmented the sentence on the basis of the
+        ethiopic sentence punctuation marks i.e (`፤`, `፥`, `።`).
         
-        :param text: A string with a sentence or sentences.
-        """
-
-        chars = list(text)
-        i = 0
-        start_new_word = True
-        output = []
-        while i < len(chars):
-            char = chars[i]
-            if self.is_ethiopic_punct(char) or self.is_control(char):
-                output.append([char])
-                start_new_word = True
-            else:
-                if start_new_word:
-                    output.append([])
-                start_new_word = False
-                output[-1].append(char)
-            i += 1
-
-        return ["".join(x) for x in output] 
-
-    @staticmethod
-    def is_ethiopic_punct(char) -> bool:
-        """Checks whether `chars` is a amharic punctuation character."""
-        cp = ord(char)
-        # Characters such as ፠ ፡ ። ፣ ፤ ፥ ፦ ፧ ፨ 
-        if (cp >= 0x1360 and cp <= 0x1368):
-            return True
-        return False
+        Uses an instance of LineTokenizer and RegexpTokenizer.
+       
+        Args:
+            sent_end_chars (List[str], optional): list of sentences-ending punctuation marks. 
+            Defaults to None.
+        """            
+        if sent_end_chars:
+            self.sent_end_chars = sent_end_chars
+        else:
+            self.sent_end_chars = ETHIOPIC_SENT_PUNCTUATION # Default sent_end_chars ("፤", "፥", "።")
+        
+        self.sent_end_chars_regex = "|".join(self.sent_end_chars)
+        self.pattern = rf"(?<=[{self.sent_end_chars_regex}])\s"
     
-    @staticmethod
-    def is_control(char) -> bool:
-        """Checks whether `chars` is a control character."""
-        if char == "\t" or char == "\n" or char == "\r":
-            return True
-        return False
+    def tokenize(self, text: str) -> List[str]:
+        """Method for tokenizing sentences with regular expressions.
+        Tokenize a text into a sequence of sentenece using end sentenece punctuation characters as a separator.
+        It, also assume a text starts with new line is a new sentenece or paragraph. uses `LineTokenizer`
+
+        Args:
+            text (str): text to be tokenized into sentences
+
+        Returns:
+            List[str]: tokenized sentence list
+        """
+        lines = LineTokenizer().tokenize(text)
+        
+        # punctuation normalization 
+        # :: -> ። 
+        punct_norm_lines = [
+            normalize_punct(line) for line in lines
+        ]
+
+        sentences = [
+            sent for line in punct_norm_lines for sent in RegexpTokenizer(pattern=self.pattern, gaps=True).tokenize(line) if len(sent.strip())
+        ]
+        return sentences
 
 # Sentence tokenizer.
 def sent_tokenize(text: str) -> List[str]:
-    """
-    Return a sentence-tokenized copy of *text*
+    """ Return a sentence-tokenized copy of *text*
+    uses an instance of EthiopicSentenceTokenizer.
 
-    :param text: text to split into sentences
-    """
-    sents: List = [] 
-    start: int = 0
-    end: int = 0
-    
-    punct_splits = PunctTokenizer().tokenize(text)
-    if len(punct_splits) == 1:
-        return punct_splits
-   
-    for idx, token in enumerate(punct_splits):
-        if len(token) == 1 and (PunctTokenizer.is_ethiopic_punct(token) or PunctTokenizer.is_control(token)):
-            end = idx + 1
-            sent = "".join(punct_splits[start: end])
-            sents.append(sent)
-            start = end
-        elif idx == len(punct_splits) - 1:
-            sents.append(token)
-    return sents
+    Args:
+        text (str): text to split into sentences
 
-# Word tokenizer.
-def word_tokenize(text: str, return_expand=False, return_str=False) -> List[str]:
+    Returns:
+        List[str]: _description_
     """
-    Return a tokenized copy of `text`
+    sentences = EthiopicSentenceTokenizer().tokenize(text)
     
-    :param text: A string with a sentence or sentences.
-    :param do_expand: If True, return shortend token as expanded tokens,
-            defaults to False.
-    :param return_str: If True, return tokens as space-separated string,
-            defaults to False.
-    :return: List of tokens from `text`.
-    """
-    
-    sentences = sent_tokenize(text)
-    
-    words = [
-        word for sent in sentences for word in WhitespaceTokenizer().tokenize(sent)
-    ]
-    
-    tokens = [
-        token for word in words for token in PunctTokenizer().tokenize(word)
-    ]
-
-    if return_expand:
-        expanded_words = expand_short_forms(" ".join(tokens))
-        tokens = WhitespaceTokenizer().tokenize(expanded_words)
+    stripped_sentences: List = []
+    for sent in sentences:
+        # Split into words by white space                
+        expanded_words = expand_short_forms(sent)
         
-    if return_str:
-        return " ".join(tokens)
+        # Split into words by white space
+        # Remove extra spaces, tabs, and new lines
+        whitespaced_tokens = whitespace_tokenize(expanded_words)
+        
+        # remove_non_ethiopic and ethiopic punctuations
+        ethiopic_tokens = [
+            remove_non_ethiopic(token) for token in whitespaced_tokens if len(remove_non_ethiopic(token).strip())
+        ]
+        stripped_ethiopic_tokens = [
+            remove_ethiopic_punct(token) for token in ethiopic_tokens if len(remove_ethiopic_punct(token).strip())
+        ]
+        
+        stripped_sentences.append(" ".join(stripped_ethiopic_tokens))
+    
+    return stripped_sentences
 
-    return tokens
+def wordpunct_tokenize(text: str) -> List[str]:
+    # punctuation = "!\"#$%&'()*+,-:;<=>?@[\]^`{|}~።፤;፦፥፧፨፠፣"
+    punctuation = "".join(PUNCTUATIONS)
+    sentence_out = ""
+    for character in text:
+        if character in punctuation:
+            sentence_out += " %s " % character
+        else:
+            sentence_out += character
+
+    return sentence_out.split()
+
+def word_tokenize(text: str, return_expand=True, return_word=True) -> List[str]:
+    """_summary_
+
+    Args:
+        text (str): _description_
+        return_expand (bool, optional): _description_. Defaults to True.
+        return_word (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        List[str]: _description_
+    """
+    word_tokens = wordpunct_tokenize(text)
+    
+    # Expands shortened characters
+    if return_expand:
+        expanded_words = expand_short_forms(" ".join(word_tokens))
+        word_tokens = whitespace_tokenize(expanded_words)
+    
+    if return_word:
+        # text cleaning, 
+        # remove_non_ethiopic and ethiopic punctuations
+        word_tokens = list(filter(lambda word : remove_non_ethiopic(word), word_tokens))
+        word_tokens = list(filter(lambda word : remove_ethiopic_punct(word), word_tokens))
+        return word_tokens
+    
+    return word_tokens
