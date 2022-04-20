@@ -7,7 +7,7 @@ import string
 # Third party libraries
 import emoji
 
-# ethltk libraries
+# etltk libraries
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
      
 # Regular expression

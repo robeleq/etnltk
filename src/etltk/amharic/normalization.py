@@ -7,11 +7,14 @@ import pkgutil
 # Third party libraries
 from textsearch import TextSearch
 
+# etltk libraries
+
+
 def _load_json_data(name: str):
     """
     Load a json content from ./amharic/data/``name``.json and return it.
     """
-    json_data = pkgutil.get_data("ethltk", "amharic/data/{0}.json".format(name))
+    json_data = pkgutil.get_data("etltk", "amharic/data/{0}.json".format(name))
     return json.loads(json_data.decode("utf-8"))
 
 def _replace(text: str, ts_replacer: TextSearch) -> str:
@@ -74,7 +77,7 @@ def normalize_labialized(text: str) -> str:
     # such as ሞልቱዋል to ሞልቷል
     return _replace(text, ts_replacer=ts_char_labialized_replacer)
 
-def expand_short_forms(text: str) -> str:
+def normalize_shortened(text: str) -> str:
     # Short Form Expansion 
     # such as ጠ/ሚ to ጠቅላይ ሚኒስተር.
     return _replace(text, ts_replacer=ts_char_expand_shortened_replacer)

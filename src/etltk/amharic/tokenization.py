@@ -5,9 +5,9 @@ import re
 import unicodedata
 from typing import List
 
-# ethltk libraries
+# etltk libraries
 from .preprocessing import remove_ethiopic_punct, remove_non_ethiopic
-from .normalization import expand_short_forms, normalize_punct
+from .normalization import normalize_shortened, normalize_punct
 
 # Whitespace Tokenizer
 def whitespace_tokenize(text: str) -> str:
@@ -177,7 +177,7 @@ def sent_tokenize(text: str) -> List[str]:
     stripped_sentences: List = []
     for sent in sentences:
         # Split into words by white space                
-        expanded_words = expand_short_forms(sent)
+        expanded_words = normalize_shortened(sent)
         
         # Split into words by white space
         # Remove extra spaces, tabs, and new lines
@@ -222,7 +222,7 @@ def word_tokenize(text: str, return_expand=True, return_word=True) -> List[str]:
     
     # Expands shortened characters
     if return_expand:
-        expanded_words = expand_short_forms(" ".join(word_tokens))
+        expanded_words = normalize_shortened(" ".join(word_tokens))
         word_tokens = whitespace_tokenize(expanded_words)
     
     if return_word:

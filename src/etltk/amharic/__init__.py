@@ -24,7 +24,7 @@ from .preprocessing import (
 from .normalization import (
    normalize,
    normalize_punct,
-   expand_short_forms
+   normalize_shortened
 )
 from .tokenization import (
     EthiopicSentenceTokenizer, 
@@ -50,7 +50,7 @@ DEFAULT_PIPELINE: List[Callable] = [
 def remove_punctuations(text: str, abbrev: bool = True):
     # TODO: remove punctuations like ዓ.ም.
     if not abbrev:
-        expanded = expand_short_forms(text)
+        expanded = normalize_shortened(text)
         text = expanded
         # List of punctuation includes ethiopic short form punctuations `.` and `/`
         string_punctuations = ASSCII_ETHIOPIC_PUNCTUATIONS
@@ -62,7 +62,7 @@ def remove_punctuations(text: str, abbrev: bool = True):
         
     return remove_punct(text, punctuation=string_punctuations)
 
-def clean(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
+def clean_amharic(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
     """ Returns a preprocessed copy of *text*,
     by executing a series of data preprocessing steps defined in pipeline. 
 
@@ -78,7 +78,7 @@ def clean(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
         _type_: _description_
     """
     if text is None:
-        raise ValueError("clean: `text` can't be `None`")
+        raise ValueError("clean_amharic: `text` can't be `None`")
     
     if pipeline is None:
         pipeline = DEFAULT_PIPELINE
@@ -87,7 +87,7 @@ def clean(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
         text = pipe_func(text)
     
     if not abbrev:
-        expanded = expand_short_forms(text)
+        expanded = normalize_shortened(text)
         text = expanded
         # String of punctuation includes ethiopic short form punctuations `.` and `/`
         string_punctuations = ASSCII_ETHIOPIC_PUNCTUATIONS
@@ -108,8 +108,8 @@ def clean(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
     return processed_text
 
 def normalize_amharic(text: str, labialized=True, expand_shortened=True) -> str:
-    """ 
-    Nomalize an input text by executing a series of nomalization functions specified in the argument.
+    """The function for all default amharic normalization. 
+    Nomalizes an input text by executing a series of nomalization functions specified in the argument.
     """
     
     if text is None:
@@ -234,7 +234,7 @@ class AmharicText(object):
             raise ValueError("AmharicText: `text` can't be `Empty String`")
         
         if clean_text:
-            self.cleaned = clean(text)
+            self.cleaned = clean_amharic(text)
         
         self.raw = self.string = text
 
@@ -309,7 +309,7 @@ class AmharicText(object):
             end_index = start_index + len(sent)
             
             # Split into words by white space                
-            expanded_words = expand_short_forms(sent)
+            expanded_words = normalize_shortened(sent)
             
             # Split into words by white space
             # Remove extra spaces, tabs, and new lines
