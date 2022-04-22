@@ -12,9 +12,9 @@ from textsearch import TextSearch
 
 def _load_json_data(name: str):
     """
-    Load a json content from ./amharic/data/``name``.json and return it.
+    Load a json content from ./lang/am/data/``name``.json and return it.
     """
-    json_data = pkgutil.get_data("etltk", "amharic/data/{0}.json".format(name))
+    json_data = pkgutil.get_data("etltk.lang", "am/data/{0}.json".format(name))
     return json.loads(json_data.decode("utf-8"))
 
 def _replace(text: str, ts_replacer: TextSearch) -> str:
@@ -55,7 +55,7 @@ ts_char_replacer.add(char_replacers_dict)
 ts_punct_replacer = TextSearch("insensitive", "norm")
 ts_punct_replacer.add(punct_replacers_dict)
 
-def normalize(text: str) -> str:
+def default_normalizer(text: str) -> str:
     # 1. Character Level Normalization such as ጸሀይ and ፀሐይ.
     # 2. Labialized Character Normalzation such as ሞልቱዋል to ሞልቷል
     # 3. Short Form Expansion such as ጠ/ሚ to ጠቅላይ ሚኒስተር.

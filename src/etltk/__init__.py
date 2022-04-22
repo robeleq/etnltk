@@ -16,7 +16,8 @@ from ethltk.oromiffa import (
 '''
 
 import os
-from .amharic import AmharicText, Word, WordList
+from .lang.am import AmharicDocument
+from .common.doc import Sentence, Word, WordList
 
 __version__ = '0.0.10'
 __license__ = 'MIT'
@@ -25,7 +26,8 @@ __author__ = 'Robel Equbasilassie'
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 __all__ = [
-    'AmharicText',
+    'AmharicDocument',
     'Word',
     'WordList',
+    'Sentence'
 ]
