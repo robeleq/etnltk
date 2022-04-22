@@ -10,9 +10,9 @@ from etltk.common.doc import (
     WordList
 )
 
+from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+
 from .preprocessing import (
-    ASSCII_ETHIOPIC_PUNCTUATIONS,
-    ETHIOPIC_WORD_SHORTEN_PUNCTUATIONS,
     remove_links,
     remove_tags,
     remove_emojis,
@@ -57,12 +57,12 @@ def remove_punctuations(text: str, abbrev: bool = True):
         expanded = normalize_shortened(text)
         text = expanded
         # List of punctuation includes ethiopic short form punctuations `.` and `/`
-        string_punctuations = ASSCII_ETHIOPIC_PUNCTUATIONS
+        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
     else:
         # List of punctuation excluded ethiopic short form punctuations `.` and `/`
         # remove `.` and `/` punctuation from punctuations
-        table = str.maketrans('', '', ETHIOPIC_WORD_SHORTEN_PUNCTUATIONS)
-        string_punctuations = "".join([punct.translate(table) for punct in ASSCII_ETHIOPIC_PUNCTUATIONS])
+        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+
         
     return remove_punct(text, punctuation=string_punctuations)
 
@@ -93,13 +93,12 @@ def clean_amharic(text: str,  abbrev=False, pipeline: Optional[List[Callable]] =
     if not abbrev:
         expanded = normalize_shortened(text)
         text = expanded
-        # String of punctuation includes ethiopic short form punctuations `.` and `/`
-        string_punctuations = ASSCII_ETHIOPIC_PUNCTUATIONS
-    else: # keep amharic short forms
-        # String of punctuation excluded ethiopic short form punctuations `.` and `/`
+        # List of punctuation includes ethiopic short form punctuations `.` and `/`
+        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
+    else:
+        # List of punctuation excluded ethiopic short form punctuations `.` and `/`
         # remove `.` and `/` punctuation from punctuations
-        table = str.maketrans('', '', ETHIOPIC_WORD_SHORTEN_PUNCTUATIONS)
-        string_punctuations = "".join([punct.translate(table) for punct in ASSCII_ETHIOPIC_PUNCTUATIONS])
+        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
     
     text = remove_punct(text, punctuation=string_punctuations)
     

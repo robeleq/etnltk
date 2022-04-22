@@ -1,5 +1,6 @@
-# coding=utf-8
-#
+# coding: utf8
+from __future__ import unicode_literals
+
 # Standard libraries
 import re
 import unicodedata
@@ -9,17 +10,9 @@ from typing import List
 from .line import LineTokenizer
 from .regexp import RegexpTokenizer
 from .space import whitespace_tokenize
+from ..lang.am.punctuation import ETHIOPIC_SENT_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
 from ..lang.am.preprocessing import remove_ethiopic_punct, remove_non_ethiopic
 from ..lang.am.normalizer import normalize_punct, normalize_shortened
-
-ETHIOPIC_SENT_PUNCTUATION = ("፤", "፥", "።")
-
-PUNCTUATIONS = [
-    '!', '"', '#', '$', '%', '&', "'", '(', ')',\
-    '*', '+', ',', '-', ':', ';', '<', '=', '>', '?',\
-    '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',\
-    '።', '፤', ';', '፦', '፥', '፧', '፨', '፠', '፣'
-]
 
 class EthiopicSentenceTokenizer(object):
     def __init__(self, sent_end_chars: List[str] = None):
@@ -34,10 +27,10 @@ class EthiopicSentenceTokenizer(object):
         """            
         if sent_end_chars:
             self.sent_end_chars = sent_end_chars
+            self.sent_end_chars_regex = "|".join(self.sent_end_chars)
         else:
-            self.sent_end_chars = ETHIOPIC_SENT_PUNCTUATION # Default sent_end_chars ("፤", "፥", "።")
+            self.sent_end_chars_regex = ETHIOPIC_SENT_PUNCT # Default sent_end_chars ("፤", "፥", "።")
         
-        self.sent_end_chars_regex = "|".join(self.sent_end_chars)
         self.pattern = rf"(?<=[{self.sent_end_chars_regex}])\s"
     
     def tokenize(self, text: str) -> List[str]:
@@ -101,7 +94,7 @@ def sent_tokenize(text: str) -> List[str]:
 
 def wordpunct_tokenize(text: str) -> List[str]:
     # punctuation = "!\"#$%&'()*+,-:;<=>?@[\]^`{|}~።፤;፦፥፧፨፠፣"
-    punctuation = "".join(PUNCTUATIONS)
+    punctuation = "".join(NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS)
     sentence_out = ""
     for character in text:
         if character in punctuation:

@@ -1,5 +1,6 @@
-# coding=utf-8
-#
+# coding: utf8
+from __future__ import unicode_literals
+
 # Standard libraries
 import re
 import string
@@ -8,25 +9,19 @@ import string
 import emoji
 
 # etltk libraries
+from .punctuation import ETHIOPIC_PUNCT
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
      
 # Regular expression
 REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
 REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
 REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
-REGEX_PATTERN_PUNCTUATION = re.compile(r'[\!\@\#\$\%\^\«\»\&\*\(\)\…\[\]\{\}\;\“\”\›\’\‘\"\'\:\,\.\‹\/\<\>\?\\\\|\`\´\~\-\_\=\+\፡\።\፤\;\፦\፥\፧\፨\፠\፣]')
-REGEX_ETHIOPIC_PUNCTUATION = re.compile(r'[\፠\፡\።\፣\፤\፥\፦\፧\፨]')
+REGEX_ETHIOPIC_PUNCTUATION = re.compile(ETHIOPIC_PUNCT)
 REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
 REGEX_PATTERN_DIGITS = re.compile(r"\d+")
 REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
 # TODO: add more special characters
 SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
-
-ASSCII_PUNCTUATIONS = string.punctuation
-ETHIOPIC_WORD_SHORTEN_PUNCTUATIONS = "./"
-ETHIOPIC_PUNCTUATIONS = "።፤;፦፥፧፨፠፣"
-ASSCII_ETHIOPIC_PUNCTUATIONS = ASSCII_PUNCTUATIONS + ETHIOPIC_PUNCTUATIONS
-
 
 def remove_whitespaces(text: str) -> str:
     """Remove extra spaces, tabs, and new lines 
