@@ -36,8 +36,7 @@ class EthiopicSentenceTokenizer(object):
     def tokenize(self, text: str) -> List[str]:
         """Method for tokenizing sentences with regular expressions.
         Tokenize a text into a sequence of sentenece using end sentenece punctuation characters as a separator.
-        It, also assume a text starts with new line is a new sentenece or paragraph. uses `LineTokenizer`
-
+        
         Args:
             text (str): text to be tokenized into sentences
 
@@ -48,12 +47,10 @@ class EthiopicSentenceTokenizer(object):
         
         # punctuation normalization 
         # :: -> ። 
-        punct_norm_lines = [
-            normalize_punct(line) for line in lines
-        ]
-
+        punct_norm_text = normalize_punct(text)
+        
         sentences = [
-            sent for line in punct_norm_lines for sent in RegexpTokenizer(pattern=self.pattern, gaps=True).tokenize(line) if len(sent.strip())
+            sent for sent in RegexpTokenizer(pattern=self.pattern, gaps=True).tokenize(punct_norm_text) if len(sent.strip())
         ]
         return sentences
 

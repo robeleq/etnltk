@@ -8,7 +8,7 @@ group_chars = lambda char: char.strip().replace(" ", "")
 _ethiopic = r"\u1200-\u137F"
 
 _ethiopic_punct = (
-    r"። ፤ ; ፦ ፥ ፧ ፨ ፠ ፣"
+    r"፠ ፡ ። ፣ ፤ ፥ ፦ ፧ ፨"
 )
 
 _ethiopic_sent_punct = (
@@ -33,5 +33,5 @@ _asscii_ethiopic_puncts =  ASSCII_PUNCT + ETHIOPIC_PUNCT
 table = str.maketrans('', '', _ethiopic_abbrev_punct.strip().replace(" ", ""))
 
 # list of all punctuation marks except the ". /" (because we want
-#to keep as one token the words like that's, don't etc.
+# to keep as one token the words like ዓ.ም, ጠ/ሚ etc.
 NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS =  "".join([punct.translate(table) for punct in _asscii_ethiopic_puncts])

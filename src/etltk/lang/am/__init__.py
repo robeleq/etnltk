@@ -17,7 +17,6 @@ from .preprocessing import (
     remove_tags,
     remove_emojis,
     remove_email,
-    remove_punct,
     remove_special_characters,
     remove_digits,
     remove_english_chars,
@@ -27,9 +26,9 @@ from .preprocessing import (
     remove_ethiopic_digits,
     remove_ethiopic_punct,
     remove_non_ethiopic,
+    remove_punct,
 )
 from .normalizer import (
-   default_normalizer,
    normalize_punct,
    normalize_shortened,
    normalize_char,
@@ -47,24 +46,8 @@ DEFAULT_PIPELINE: List[Callable] = [
     # TODO: text = remove_ethiopic_dates(text)
     remove_english_chars,
     remove_arabic_chars,
-    remove_chinese_chars,
-    remove_ethiopic_punct
+    remove_chinese_chars
 ]
-
-def remove_punctuations(text: str, abbrev: bool = True):
-    # TODO: remove punctuations like ዓ.ም.
-    if not abbrev:
-        expanded = normalize_shortened(text)
-        text = expanded
-        # List of punctuation includes ethiopic short form punctuations `.` and `/`
-        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
-    else:
-        # List of punctuation excluded ethiopic short form punctuations `.` and `/`
-        # remove `.` and `/` punctuation from punctuations
-        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
-
-        
-    return remove_punct(text, punctuation=string_punctuations)
 
 def clean_amharic(text: str,  abbrev=False, pipeline: Optional[List[Callable]] = None):
     """ Returns a preprocessed copy of *text*,
@@ -90,35 +73,37 @@ def clean_amharic(text: str,  abbrev=False, pipeline: Optional[List[Callable]] =
     for pipe_func in pipeline:
         text = pipe_func(text)
     
+    text = normalize_punct(text)
     if not abbrev:
-        expanded = normalize_shortened(text)
-        text = expanded
-        # List of punctuation includes ethiopic short form punctuations `.` and `/`
-        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
-    else:
-        # List of punctuation excluded ethiopic short form punctuations `.` and `/`
-        # remove `.` and `/` punctuation from punctuations
-        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+        text = normalize_shortened(text)
     
-    text = remove_punct(text, punctuation=string_punctuations)
+    text = remove_punct(text, abbrev=abbrev)
     
     text = remove_whitespaces(text)
 
     if isinstance(text, str):
         processed_text = text
     else:
-        processed_text = ' '.join(text)
+        processed_text = " ".join(text)
     return processed_text
 
-def normalize(text: str, labialized=True, expand_shortened=True) -> str:
+def normalize(text: str) -> str:
     """The function for all default amharic normalization. 
     Nomalizes an input text by executing a series of nomalization functions specified in the argument.
+    
+    Labialized Character Normalzation such as ሞልቱዋል to ሞልቷል
+    Short Form Expansion such as ጠ/ሚ to ጠቅላይ ሚኒስተር.
+    Punctuation Normalization such as :: to ።.
+    Character Level Normalization such as ጸሀይ and ፀሐይ.
     """
     
     if text is None:
         raise ValueError("normalize: `text` can't be `None`")
-    # TODO: refactor as a class `AmharicNormalizer`
-    return default_normalizer(text)
+   
+    normalized_text = normalize_labialized(text)
+    normalized_text = normalize_shortened(normalized_text)
+    normalized_text = normalize_punct(normalized_text)
+    return normalize_char(normalized_text)
             
 class AmharicDocument(object):
     def __init__(self, text, tokenizer=None, clean_text=True):

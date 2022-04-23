@@ -9,7 +9,7 @@ import string
 import emoji
 
 # etltk libraries
-from .punctuation import ETHIOPIC_PUNCT
+from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
      
 # Regular expression
@@ -21,7 +21,7 @@ REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
 REGEX_PATTERN_DIGITS = re.compile(r"\d+")
 REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
 # TODO: add more special characters
-SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
+SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£"”“`‘´’‚,„»«「」『』（）〔〕【】《》〈〉'
 
 def remove_whitespaces(text: str) -> str:
     """Remove extra spaces, tabs, and new lines 
@@ -49,7 +49,19 @@ def remove_email(text: str) -> str:
     """
     return regex_replace(text, pattern=REGEX_PATTERN_EMAIL, replace='')
 
-def remove_punct(text: str, punctuation) -> str:
+def remove_punct(text: str, abbrev: bool = True):
+    # TODO: remove punctuations like ዓ.ም.
+    if not abbrev:
+        # List of punctuation includes ethiopic short form punctuations `.` and `/`
+        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
+    else:
+        # List of punctuation excluded ethiopic short form punctuations `.` and `/`
+        # remove `.` and `/` punctuation from punctuations
+        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+
+    return _remove_punct(text, punctuation=string_punctuations)
+
+def _remove_punct(text: str, punctuation) -> str:
     """Remove punctuations from a text string
     """
     if not len(punctuation.strip()):
