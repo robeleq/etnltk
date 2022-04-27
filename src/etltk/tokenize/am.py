@@ -42,9 +42,7 @@ class EthiopicSentenceTokenizer(object):
 
         Returns:
             List[str]: tokenized sentence list
-        """
-        lines = LineTokenizer().tokenize(text)
-        
+        """       
         # punctuation normalization 
         # :: -> ። 
         punct_norm_text = normalize_punct(text)
