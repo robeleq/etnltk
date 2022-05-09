@@ -1,6 +1,7 @@
 # Ethiopian Language Toolkit (etltk)
 
 - The Ethiopian Natural Language Toolkit (ETLTK) project aimed to develop a suite of open source Natural Language Processing modules for the Ethiopian languages.
+- The Ethiopian Language Toolkit (ETLTK) is built using python language and takes inspiration from `spacy` and `nltk` libraries.
 
 ## Installation
 
@@ -238,3 +239,26 @@
     normalized_text = normalize_char("በቋንቋዉ ሕግጋት መሠረት ጽሑፎችን ማዋቀር እና መመሥረት")
     print(normalized_text)
     # output: በቋንቋዉ ህግጋት መሰረት ፅሁፎችን ማዋቀር እና መመስረት
+
+## Features
+
+- Text preprocessing functions.
+
+    ``` python
+    from etltk.lang.am import preprocessing
+    ```
+
+    | Function | Description |
+    -----------|-------------|
+    | remove_whitespaces | Remove extra spaces, tabs, and new lines from a text string
+    | remove_links | Remove URLs from a text string
+    | remove_tags | Remove HTML tags from a text string
+    | remove_emojis | Remove emojis from a text string
+    | remove_email | Remove email adresses from a text string
+    | remove_digits | Remove all digits from a text string
+    | remove_english_chars | Remove ascii characters from a text string
+    | remove_arabic_chars | Remove arabic characters and numerals from a text string
+    | remove_chinese_chars | Remove chinese characters from a text string
+    | remove_ethiopic_digits | Remove all ethiopic digits from a text string
+    | remove_ethiopic_punct | Remove ethiopic punctuations from a text string
+    | remove_non_ethiopic | Remove non ethioipc characters from a text string
