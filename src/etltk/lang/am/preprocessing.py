@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 
 # Standard libraries
 import re
-import string
+from typing import List, Optional, Union
 
 # Third party libraries
 import emoji
 
 # etltk libraries
 from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+from .stop_words import STOP_WORDS
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
      
 # Regular expression
@@ -121,3 +122,26 @@ def remove_non_ethiopic(text: str):
     """
     ethiopic_only = "".join([char for char in text if (is_ethiopic(char) or ord(char) == 32)])
     return ethiopic_only
+
+def remove_stopwords(text_or_list: Union[str, List[str]], stop_words: Optional[set] = None) -> List[str]:
+    """ Remove stop words
+
+    Args:
+        text_or_list (Union[str, List[str]]): Input text or list of words
+        stop_words (Optional[set], optional): Set of stopwords string to remove. If not passed, by default uses ELTK Amharic stopwords. Defaults to None.
+
+    Returns:
+        List[str]: list of words
+    """
+    if stop_words is None:
+        stop_words = STOP_WORDS
+    if isinstance(stop_words, list):
+        stop_words = set(stop_words)
+        
+    if isinstance(text_or_list, str):
+        tokens = text_or_list.split()
+        result_tokens = [token for token in tokens if token not in stop_words]
+    else:
+        result_tokens = [token for token in text_or_list
+                            if (token not in stop_words and token is not None and len(token) > 0)]
+    return result_tokens

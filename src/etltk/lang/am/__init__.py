@@ -6,9 +6,12 @@ from etltk.tokenize.am import EthiopicSentenceTokenizer, word_tokenize
 from etltk.tokenize.space import whitespace_tokenize
 
 from etltk.common.doc import (
+    Document, 
     Sentence, 
-    WordList
+    Word
 )
+
+from .stop_words import STOP_WORDS
 
 from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
 
@@ -27,6 +30,7 @@ from .preprocessing import (
     remove_ethiopic_punct,
     remove_non_ethiopic,
     remove_punct,
+    remove_stopwords
 )
 from .normalizer import (
    normalize_punct,
@@ -104,49 +108,59 @@ def normalize(text: str) -> str:
     normalized_text = normalize_shortened(normalized_text)
     normalized_text = normalize_punct(normalized_text)
     return normalize_char(normalized_text)
+
+class AmharicWord(Word):
             
-class AmharicDocument(object):
-    def __init__(self, text, tokenizer=None, clean_text=True):
-        if not isinstance(text, (str, bytes)):
-            raise TypeError('The `text` argument passed to `__init__(text)` '
-                            f'must be a string, not {type(text)}')
-            
-        if not len(text.strip()):
-            raise ValueError("AmharicDocument: `text` can't be `Empty String`")
-        
+    @property
+    def is_stopword(self):
+        """RETURNS (bool): Whether the token is a stop word, i.e. part of a
+            "stopwords list" defined by the language data.
+        """
+        return self._check_stopword()
+    
+    def _check_stopword(self):
+        if self._string in STOP_WORDS:
+            return True
+        else:
+            return False
+
+class Amharic(Document):
+    def __init__(self, text, clean_text=True):
+        super().__init__(text, lang="am")
+
         if clean_text:
             self.cleaned = clean_amharic(text)
-        
-        self.raw = self.string = text
 
     def __repr__(self):
-        '''Returns a string representation for debugging.'''
-        class_name = self.__class__.__name__
-        text = self.cleaned
-        return f'{class_name}("{text}")'
+        """Returns a string representation for debugging.
+        """
+        cls_name = self.__class__.__name__
+        return f'{cls_name}("{self.cleaned}")'
     
     @cached_property
     def tokens(self):
         """Return a list of tokens. This includes
         An individual token – i.e. a word, punctuation symbol, whitespace.
 
-        :returns: A :class:`WordList <WordList>` of word tokens.
+        :returns: A list of word tokens.
         """
-        return WordList(word_tokenize(self.raw, return_expand=True, return_word=False))
+        word_tokens = word_tokenize(self.raw, return_expand=True, return_word=False)
+        return [AmharicWord(w) for w in word_tokens]
     
     @cached_property
     def words(self):
         """Return a list of word tokens. This excludes punctuation characters.
-        If you want to include punctuation characters, access the ``tokens``
-        property.
+        If you want to include punctuation characters, access the ``tokens`` property.
 
         :returns: A :class:`WordList <WordList>` of word tokens.
         """
-        return WordList(word_tokenize(self.raw, return_expand=True, return_word=True))
+        tokenized_words = word_tokenize(self.raw, return_expand=True, return_word=True)
+        return [AmharicWord(w) for w in tokenized_words]
     
     @cached_property
     def sentences(self):
-        """Return list of :class:`Sentence <Sentence>` objects."""
+        """Return list of :class:`Sentence <Sentence>` objects.
+        """
         return self._create_sentence_objects()
     
     @cached_property
@@ -162,19 +176,19 @@ class AmharicDocument(object):
     
     def ngrams(self, n=3):
         """Return a list of n-grams (tuples of n successive words) for this
-        blob.
+        document.
 
         :rtype: List of :class:`WordLists <WordList>`
         """
         if n <= 0:
             return []
-        grams = [WordList(self.words[i:i + n])
-                            for i in range(len(self.words) - n + 1)]
+
+        grams = [AmharicWord(self.words[i:i + n]) for i in range(len(self.words) - n + 1)]
         return grams
     
     def _create_sentence_objects(self):
 
-        sentence_objects = []        
+        self._sentences = []        
         sentences = EthiopicSentenceTokenizer().tokenize(self.raw)
         
         # Since `EthiopicSentenceTokenizer` normalizes puctuation
@@ -182,15 +196,15 @@ class AmharicDocument(object):
         punct_norm_text = normalize_punct(self.raw)
         
         char_index = 0  # Keeps track of character index within the blob
-        for sent in sentences:
+        for raw_sent in sentences:
             # Compute the start and end indices of the sentence
             # within the blob
-            start_index = punct_norm_text.index(sent, char_index)
-            char_index += len(sent)
-            end_index = start_index + len(sent)
+            start_index = punct_norm_text.index(raw_sent, char_index)
+            char_index += len(raw_sent)
+            end_index = start_index + len(raw_sent)
             
             # Split into words by white space                
-            expanded_words = normalize_shortened(sent)
+            expanded_words = normalize_shortened(raw_sent)
             
             # Split into words by white space
             # Remove extra spaces, tabs, and new lines
@@ -203,9 +217,9 @@ class AmharicDocument(object):
             stripped_ethiopic_tokens = [
                 remove_ethiopic_punct(token) for token in ethiopic_tokens if len(remove_ethiopic_punct(token).strip())
             ]        
-            clean_sentence = " ".join(stripped_ethiopic_tokens)
+            clean_sent = " ".join(stripped_ethiopic_tokens)
             
             # Sentences share the same models as their parent blob
-            s = Sentence(sent, start_index=start_index, end_index=end_index, clean_sentence=clean_sentence)
-            sentence_objects.append(s)
-        return sentence_objects     
+            sent = Sentence(raw_sent, start_index=start_index, end_index=end_index, clean_sentence=clean_sent)
+            self._sentences.append(sent)
+        return self._sentences
