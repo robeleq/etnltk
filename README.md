@@ -18,7 +18,7 @@
 - Alternatively, you can also install from source via `etnltk` git repository, which will give you more flexibility in developing on top of etltk. For this option, run
 
   ```python
-    git clone https://github.com/robikieq/etnltk.git
+    git clone https://github.com/robeleq/etnltk.git
     
     cd etnltk
     
