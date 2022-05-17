@@ -7,14 +7,14 @@ import pkgutil
 # Third party libraries
 from textsearch import TextSearch
 
-# etltk libraries
+# etnltk libraries
 
 
 def _load_json_data(name: str):
     """
     Load a json content from ./lang/am/data/``name``.json and return it.
     """
-    json_data = pkgutil.get_data("etltk.lang", "am/data/{0}.json".format(name))
+    json_data = pkgutil.get_data("etnltk.lang", "am/data/{0}.json".format(name))
     return json.loads(json_data.decode("utf-8"))
 
 def _replace(text: str, ts_replacer: TextSearch) -> str:

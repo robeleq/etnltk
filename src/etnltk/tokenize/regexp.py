@@ -3,7 +3,7 @@
 # Standard libraries
 import re
 
-# etltk libraries
+# etnltk libraries
 
 class RegexpTokenizer():
     """A tokenizer that splits a string using a regular expression, which

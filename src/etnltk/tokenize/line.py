@@ -5,7 +5,7 @@ import re
 import unicodedata
 from typing import List
 
-# etltk libraries
+# etnltk libraries
 
 # Line Tokenizer
 class LineTokenizer(object):

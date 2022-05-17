@@ -1,33 +1,33 @@
-# Ethiopian Language Toolkit (etltk)
+# Ethiopian Natural Language Toolkit (etnltk)
 
-- The Ethiopian Natural Language Toolkit (ETLTK) project aimed to develop a suite of open source Natural Language Processing modules for the Ethiopian languages.
-- The Ethiopian Language Toolkit (ETLTK) is built using python language and takes inspiration from `spacy` and `nltk` libraries.
+- The Ethiopian Natural Language Toolkit (etnltk) project aimed to develop a suite of open source Natural Language Processing modules for the Ethiopian languages.
+- The Ethiopian Natural Language Toolkit (etnltk) is built using python language and takes inspiration from `spacy` and `nltk` libraries.
 
 ## Installation
 
 ### pip
 
-- **etltk** supports Python 3.6 or later. We recommend that you install etltk via `pip`, the Python package manager. To install, simply run:
+- **etnltk** supports Python 3.6 or later. We recommend that you install etnltk via `pip`, the Python package manager. To install, simply run:
 
   ```python
-    pip install etltk
+    pip install etnltk
   ```
 
 ### From Source
 
-- Alternatively, you can also install from source via ethiopian_language_toolkit’s git repository, which will give you more flexibility in developing on top of etltk. For this option, run
+- Alternatively, you can also install from source via `etnltk` git repository, which will give you more flexibility in developing on top of etltk. For this option, run
 
   ```python
-    git clone https://github.com/robikieq/ethiopian_language_toolkit.git
+    git clone https://github.com/robikieq/etnltk.git
     
-    cd ethiopian_language_toolkit
+    cd etnltk
     
     pip install -e .
   ```
 
 ## Documentation
 
-<https://etltk.netlify.app/>
+<https://etnltk.netlify.app/>
 
 ## Usage
 
@@ -35,7 +35,7 @@
     - Preprocessing amharic text is very simple: you can simply pass the text to the `Amharic` document and access all annotations from the returned Amharic document object:
 
     ```python
-      from etltk import Amharic
+      from etnltk import Amharic
 
       sample_text = """
         ሚያዝያ 14፣ 2014 ዓ.ም 🤗 በአገር ደረጃ የሰው ሰራሽ አስተውሎት /Artificial Intelligence/ አሁን ካለበት ዝቅተኛ ደረጃ ወደ ላቀ ደረጃ ለማድረስ፣ ሃገርኛ ቋንቋዎችን ለዓለም ተደራሽ ለማድረግ፣ አገራዊ አቅምን ለማሳደግ እና ተጠቃሚ ለመሆን በጋራ አብሮ መስራቱ እጅግ ጠቃሚ ነው፡፡
@@ -55,7 +55,7 @@
      - Here is a another example of performing text cleaning on a piece of plaintext using `clean_amharic` function:
 
     ```python
-    from etltk.lang.am import (
+    from etnltk.lang.am import (
       preprocessing,
       clean_amharic
     )
@@ -88,7 +88,7 @@
     - Within Amharic document, annotations are further stored in `Sentences`
 
     ```python
-    from etltk import Amharic
+    from etnltk import Amharic
 
     sample_text = """
       የማሽን ለርኒንግ ስልተ-ቀመሮች  (Algorithms) በመጠቀም ቋንቋዎችን መለየት እና መረዳት፣ የጽሁፍ ይዘቶችን መለየት፣ የቋንቋን መዋቅር መተንተን የሚያስችሉ የሃገሪኛ ናቹራል ላንጉዌጅ ፕሮሰሲንግ ቱሎች (NLP tools) ፣ ስልተ-ቀመሮች እና ሞዴሎችን ማዘጋጀት ተገቢ ነው። በዚህም መሰረት አማርኛ፣ አፋን ኦሮሞ፣ ሶማሊኛ እና ትግርኛ ቋንቋዎችን ለማሽን የማስተማር ሂደትን ቀላልና የተቀላተፍ እንዲሆን ያስችላል፡፡
@@ -105,7 +105,7 @@
     - Here is another example of performing sentence tokenization on a piece of plaintext using `sentence_tokenize` function:
 
     ```python
-    from etltk.tokenize.am import sent_tokenize
+    from etnltk.tokenize.am import sent_tokenize
 
     sample_text = """
       የማሽን ለርኒንግ ስልተ-ቀመሮች  (Algorithms) በመጠቀም ቋንቋዎችን መለየት እና መረዳት፣ የጽሁፍ ይዘቶችን መለየት፣ የቋንቋን መዋቅር መተንተን የሚያስችሉ የሃገሪኛ ናቹራል ላንጉዌጅ ፕሮሰሲንግ ቱሎች (NLP tools) ፣ ስልተ-ቀመሮች እና ሞዴሎችን ማዘጋጀት ተገቢ ነው። በዚህም መሰረት አማርኛ፣ አፋን ኦሮሞ፣ ሶማሊኛ እና ትግርኛ ቋንቋዎችን ለማሽን የማስተማር ሂደትን ቀላልና የተቀላተፍ እንዲሆን ያስችላል፡፡
@@ -123,7 +123,7 @@
     - Within Amharic focument, annotations are further stored in `Words`.
 
     ```python
-    from etltk import AmharicDocument
+    from etnltk import AmharicDocument
 
     sample_text = """
       “ተረኛ፣ ተረኛ!” አለ ነርሱ። ወይዘሮ
@@ -153,7 +153,7 @@
     - Here is another example of performing word tokenization on a piece of plaintext using `word_tokenize` function:
 
     ```python
-    from etltk.tokenize.am import word_tokenize
+    from etnltk.tokenize.am import word_tokenize
 
     sample_text = """
       “ተረኛ፣ ተረኛ!” አለ ነርሱ። ወይዘሮ
@@ -188,7 +188,7 @@
     - Here is a simple example of performing normalization on a piece of plaintext using `normalize` function:
 
     ```python
-    from etltk.lang.am import normalize
+    from etnltk.lang.am import normalize
 
     sample_text = """
       ሚያዝያ 14፣ 2014 ዓ.ም በዓገር ደረጃ የሰው ሰራሽ አስተውሎት የውይይት መድረክ ላይ
@@ -217,7 +217,7 @@
     - Here is another example of performing normalization on a piece of plaintext using `normalize_char`, `normalize_punct`, `normalize_labialized`, `normalize_shortened` function:
 
     ```python
-    from etltk.lang.am.normalizer import ( 
+    from etnltk.lang.am.normalizer import ( 
       normalize_labialized, 
       normalize_shortened,
       normalize_punct,
@@ -249,7 +249,7 @@
 - Text preprocessing functions.
 
     ``` python
-    from etltk.lang.am import preprocessing
+    from etnltk.lang.am import preprocessing
     ```
 
     | Function | Description |

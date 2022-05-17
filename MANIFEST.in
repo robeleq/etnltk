@@ -1,2 +1,2 @@
 include *.md
-recursive-include etltk *.json
+recursive-include etnltk *.json

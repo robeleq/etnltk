@@ -2,10 +2,10 @@ from collections import defaultdict
 from functools import cached_property
 from typing import Callable, List, Optional
 
-from etltk.tokenize.am import EthiopicSentenceTokenizer, word_tokenize
-from etltk.tokenize.space import whitespace_tokenize
+from etnltk.tokenize.am import EthiopicSentenceTokenizer, word_tokenize
+from etnltk.tokenize.space import whitespace_tokenize
 
-from etltk.common.doc import (
+from etnltk.common.doc import (
     Document, 
     Sentence, 
     Word
