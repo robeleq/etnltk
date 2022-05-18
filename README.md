@@ -76,7 +76,7 @@
     ]
     
     # `clean_amharic` function takes a custom pipeline, if not uses the default pipeline
-    cleaned = clean_amharic(input_text, abbrev=False, pipeline=custom_pipeline)
+    cleaned = clean_amharic(sample_text, abbrev=False, pipeline=custom_pipeline)
 
     # print the `clean` text:
     print(cleaned)
