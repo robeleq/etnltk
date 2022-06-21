@@ -142,7 +142,7 @@ class Amharic(Document):
         """Return a list of tokens. This includes
         An individual token – i.e. a word, punctuation symbol, whitespace.
 
-        :returns: A list of word tokens.
+        :returns: A :class:`List<AmharicWord>` of tokens.
         """
         word_tokens = word_tokenize(self.raw, return_expand=True, return_word=False)
         return [AmharicWord(w) for w in word_tokens]
@@ -152,7 +152,7 @@ class Amharic(Document):
         """Return a list of word tokens. This excludes punctuation characters.
         If you want to include punctuation characters, access the ``tokens`` property.
 
-        :returns: A :class:`WordList <WordList>` of word tokens.
+        :returns: A :class:`List<AmharicWord>` of word tokens.
         """
         tokenized_words = word_tokenize(self.raw, return_expand=True, return_word=True)
         return [AmharicWord(w) for w in tokenized_words]
