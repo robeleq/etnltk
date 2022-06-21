@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 # Third party libraries
 import emoji
 
-# etltk libraries
+# etnltk libraries
 from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
 from .stop_words import STOP_WORDS
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
