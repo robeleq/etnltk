@@ -6,6 +6,8 @@ from etnltk.common.doc import (
     Word
 )
 
+from etnltk.tokenize.tg import word_tokenize
+
 from .stop_words import STOP_WORDS
 
 from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
@@ -134,3 +136,23 @@ class Tigrigna(Document):
         """
         cls_name = self.__class__.__name__
         return f'{cls_name}("{self.cleaned}")'
+    
+    @cached_property
+    def tokens(self):
+        """Return a list of tokens. This includes
+        An individual token – i.e. a word, punctuation symbol, whitespace.
+
+        :returns: A :class:`List<TigrignaWord>` of tokens.
+        """
+        word_tokens = word_tokenize(self.raw, return_word=False)
+        return [TigrignaWord(w) for w in word_tokens]
+    
+    @cached_property
+    def words(self):
+        """Return a list of word tokens. This excludes punctuation characters.
+        If you want to include punctuation characters, access the ``tokens`` property.
+
+        :returns: A :class:`List<TigrignaWord>` of word tokens.
+        """
+        tokenized_words = word_tokenize(self.raw, return_word=True)
+        return [TigrignaWord(w) for w in tokenized_words]

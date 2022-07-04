@@ -1,13 +1,16 @@
 import os
 from .lang.am import Amharic, AmharicWord
+from .lang.tg import Tigrigna, TigrignaWord
 
 __version__ = '0.0.22'
 __license__ = 'MIT'
-__author__ = 'Robel Equbasilassie'
+__author__ = 'Robel Equbasilassie, Haftom Tsegay'
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 __all__ = [
     'Amharic',
-    'AmharicWord'
+    'AmharicWord',
+    'Tigrigna',
+    'TigrignaWord'
 ]

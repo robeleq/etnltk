@@ -31,7 +31,7 @@ def wordpunct_tokenize(text: str) -> List[str]:
 
     return sentence_out.split()
 
-def word_tokenize(text: str) -> List[str]:
+def word_tokenize(text: str, return_word=True) -> List[str]:
     """_summary_
 
     Args:
@@ -45,15 +45,18 @@ def word_tokenize(text: str) -> List[str]:
     normalized = normalize_shortened(text)
     normalized = normalize_punct(normalized)
     normalized = normalize_char(normalized)
-    word_tokens = whitespace_tokenize(normalized)
-                  
-    # text cleaning, 
-    # remove_non_ethiopic and ethiopic punctuations
-    word_tokens = [
-        remove_non_ethiopic(token) for token in word_tokens if len(remove_non_ethiopic(token).strip())
-    ]
-    word_tokens = [
-        remove_ethiopic_punct(token) for token in word_tokens if len(remove_ethiopic_punct(token).strip())
-    ]
     
+    # wordpunct tokenize
+    word_tokens = wordpunct_tokenize(normalized)
+    
+    if return_word:
+        # text cleaning, 
+        # remove_non_ethiopic and ethiopic punctuations
+        word_tokens = [
+            remove_non_ethiopic(token) for token in word_tokens if len(remove_non_ethiopic(token).strip())
+        ]
+        word_tokens = [
+            remove_ethiopic_punct(token) for token in word_tokens if len(remove_ethiopic_punct(token).strip())
+        ]
+        
     return word_tokens
