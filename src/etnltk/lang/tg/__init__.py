@@ -106,3 +106,31 @@ def normalize(text: str) -> str:
     normalized_text = normalize_shortened(normalized_text)
     normalized_text = normalize_punct(normalized_text)
     return normalize_char(normalized_text)
+
+class TigrignaWord(Word):
+            
+    @property
+    def is_stopword(self):
+        """RETURNS (bool): Whether the token is a stop word, i.e. part of a
+            "stopwords list" defined by the language data.
+        """
+        return self._check_stopword()
+    
+    def _check_stopword(self):
+        if self._string in STOP_WORDS:
+            return True
+        else:
+            return False
+
+class Tigrigna(Document):
+    def __init__(self, text, clean_text=True):
+        super().__init__(text, lang="am")
+
+        if clean_text:
+            self.cleaned = clean_tigrigna(text)
+
+    def __repr__(self):
+        """Returns a string representation for debugging.
+        """
+        cls_name = self.__class__.__name__
+        return f'{cls_name}("{self.cleaned}")'

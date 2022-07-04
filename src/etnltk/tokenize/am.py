@@ -6,7 +6,7 @@ import re
 import unicodedata
 from typing import List
 
-# etltk libraries
+# etnltk libraries
 from .line import LineTokenizer
 from .regexp import RegexpTokenizer
 from .space import whitespace_tokenize
