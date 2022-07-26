@@ -1,7 +1,11 @@
+# coding=utf-8
+#
+# Standard libraries
 from collections import defaultdict
 from functools import cached_property
 from typing import Callable, List, Optional
 
+# etnltk libraries
 from etnltk.tokenize.am import EthiopicSentenceTokenizer, word_tokenize
 from etnltk.tokenize.space import whitespace_tokenize
 
@@ -178,7 +182,7 @@ class Amharic(Document):
         """Return a list of n-grams (tuples of n successive words) for this
         document.
 
-        :rtype: List of :class:`WordLists <WordList>`
+        :rtype: List of :class:`AmharicWord`
         """
         if n <= 0:
             return []

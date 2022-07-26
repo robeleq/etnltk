@@ -1,8 +1,11 @@
+# Standard libraries
 import os
+
+# etnltk libraries
 from .lang.am import Amharic, AmharicWord
 from .lang.tg import Tigrigna, TigrignaWord
 
-__version__ = '0.0.22'
+__version__ = '0.0.23'
 __license__ = 'MIT'
 __author__ = 'Robel Equbasilassie, Haftom Tsegay'
 

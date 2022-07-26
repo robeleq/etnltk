@@ -1,6 +1,11 @@
+# coding=utf-8
+#
+# Standard libraries
+from collections import defaultdict
 from functools import cached_property
 from typing import Callable, List, Optional
 
+# etnltk libraries
 from etnltk.common.doc import (
     Document,
     Word
@@ -156,3 +161,26 @@ class Tigrigna(Document):
         """
         tokenized_words = word_tokenize(self.raw, return_word=True)
         return [TigrignaWord(w) for w in tokenized_words]
+    
+    @cached_property
+    def word_counts(self):
+        """Dictionary of word frequencies in this text.
+        Count Tokenized Words
+        """
+        counts = defaultdict(int)
+        stripped_words = [word for word in self.words]
+        for word in stripped_words:
+            counts[word] += 1
+        return counts
+    
+    def ngrams(self, n=3):
+        """Return a list of n-grams (tuples of n successive words) for this
+        document.
+
+        :rtype: List of :class:`TigrignaWord`
+        """
+        if n <= 0:
+            return []
+
+        grams = [TigrignaWord(self.words[i:i + n]) for i in range(len(self.words) - n + 1)]
+        return grams
