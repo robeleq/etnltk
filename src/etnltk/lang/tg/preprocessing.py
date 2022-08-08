@@ -12,7 +12,8 @@ from textsearch import TextSearch
 # etnltk libraries
 from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS, TIGRIGNA_ABBREV_PUNCT
 from .stop_words import STOP_WORDS
-from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
+from etnltk.common.utils import is_chinese_char, regex_replace
+from etnltk.common.ethiopic import is_ethiopic, is_ethiopic_digit
      
 # Regular expression
 REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
