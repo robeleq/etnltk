@@ -23,6 +23,7 @@ _tigrigna_abbrev_punct = (
     r". / ’"
 )
 
+# punctuation marks except ". / ’"
 _asscii_punct = (
     r' ! " \# \$ % \& \( \) \* \+ , \- \. / : ; < = > \? @ \[ \\ \] \^ _ ` \{ \| \} \~ '
 )

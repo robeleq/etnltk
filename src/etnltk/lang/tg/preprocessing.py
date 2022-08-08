@@ -7,9 +7,10 @@ from typing import List, Optional, Union
 
 # Third party libraries
 import emoji
+from textsearch import TextSearch
 
 # etnltk libraries
-from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
+from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS, TIGRIGNA_ABBREV_PUNCT
 from .stop_words import STOP_WORDS
 from .utils import is_chinese_char, is_ethiopic, is_ethiopic_digit, regex_replace
      
@@ -22,7 +23,7 @@ REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
 REGEX_PATTERN_DIGITS = re.compile(r"\d+")
 REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
 # TODO: add more special characters
-SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£"”“`‘´’‚,„»«「」『』（）〔〕【】《》〈〉'
+SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£"”“`‘´‚,„»«「」『』（）〔〕【】《》〈〉'
 
 def remove_whitespaces(text: str) -> str:
     """Remove extra spaces, tabs, and new lines 
@@ -53,10 +54,10 @@ def remove_email(text: str) -> str:
 def remove_punct(text: str, abbrev: bool = True):
     # TODO: remove punctuations like ዓ.ም.
     if not abbrev:
-        # List of punctuation includes ethiopic short form punctuations `.` and `/`
-        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT
+        # List of punctuation includes tigrigna short form punctuations `.` and `/` ```
+        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT + TIGRIGNA_ABBREV_PUNCT
     else:
-        # List of punctuation excluded ethiopic short form punctuations `.` and `/`
+        # List of punctuation excluded ethiopic short form punctuations `.`, `/`
         # remove `.` and `/` punctuation from punctuations
         string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
 
@@ -122,6 +123,20 @@ def remove_non_ethiopic(text: str):
     """
     ethiopic_only = "".join([char for char in text if (is_ethiopic(char) or ord(char) == 32)])
     return ethiopic_only
+
+def replace_apostrophe(text: str) -> str:
+    # ደኣ'ምበር -> ደኣ እምበር
+    regex_pattern = re.compile(r"'[^a-zA-Z0-9'+\r\n\s]|’[^a-zA-Z0-9’+\r\n\s]")
+    matchs = re.findall(regex_pattern, text)
+    if matchs:
+        replacer = " እ"
+        replacers = {match: f"{replacer}{match[1]}" for match in matchs}
+        
+        ts = TextSearch("sensitive", "object")
+        ts.add(replacers)
+        
+        return ts.replace(text) 
+    return text
 
 def remove_stopwords(text_or_list: Union[str, List[str]], stop_words: Optional[set] = None) -> List[str]:
     """ Remove stop words

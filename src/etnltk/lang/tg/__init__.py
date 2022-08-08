@@ -7,11 +7,13 @@ from typing import Callable, List, Optional
 
 # etnltk libraries
 from etnltk.common.doc import (
-    Document,
+    Document, 
+    Sentence, 
     Word
 )
 
-from etnltk.tokenize.tg import word_tokenize
+from etnltk.tokenize.tg import word_tokenize, sent_tokenize
+from etnltk.tokenize.tg import EthiopicSentenceTokenizer
 
 from .stop_words import STOP_WORDS
 
@@ -32,7 +34,8 @@ from .preprocessing import (
     remove_ethiopic_punct,
     remove_non_ethiopic,
     remove_punct,
-    remove_stopwords
+    remove_stopwords,
+    replace_apostrophe
 )
 from .normalizer import (
    normalize_punct,
@@ -81,6 +84,9 @@ def clean_tigrigna(text: str,  abbrev=False, pipeline: Optional[List[Callable]] 
         text = pipe_func(text)
 
     text = normalize_punct(text)
+    
+    text = replace_apostrophe(text)
+    
     if not abbrev:
         text = normalize_shortened(text)
     
@@ -104,15 +110,16 @@ def normalize(text: str) -> str:
     Short Form Expansion such as ጠ/ሚ to ጠቅላይ ሚኒስተር.
     Punctuation Normalization such as :: to ።.
     Character Level Normalization such as ጸሀይ and ፀሐይ.
+    Replace Apostrophe such as ደኣ'ምበር to ደኣ እምበር
     """
     
     if text is None:
         raise ValueError("normalize: `text` can't be `None`")
    
-    normalized_text = normalize_labialized(text)
-    normalized_text = normalize_shortened(normalized_text)
-    normalized_text = normalize_punct(normalized_text)
-    return normalize_char(normalized_text)
+    text = normalize_shortened(text)
+    text = normalize_punct(text)
+    text = replace_apostrophe(text)
+    return normalize_char(text)
 
 class TigrignaWord(Word):
             
@@ -165,7 +172,6 @@ class Tigrigna(Document):
     @cached_property
     def word_counts(self):
         """Dictionary of word frequencies in this text.
-        Count Tokenized Words
         """
         counts = defaultdict(int)
         stripped_words = [word for word in self.words]
@@ -184,3 +190,37 @@ class Tigrigna(Document):
 
         grams = [TigrignaWord(self.words[i:i + n]) for i in range(len(self.words) - n + 1)]
         return grams
+    
+    @cached_property
+    def sentences(self):
+        """Return list of :class:`Sentence <Sentence>` objects.
+        """
+        return self._create_sentence_objects()
+    
+    def _create_sentence_objects(self):
+
+        self._sentences = []        
+        sentences = EthiopicSentenceTokenizer().tokenize(self.raw)
+        
+        # Since `EthiopicSentenceTokenizer` normalizes puctuation
+        # `raw` has to be also normalized to extact spans
+        punct_norm_text = normalize_punct(self.raw)
+        
+        char_index = 0  # Keeps track of character index within the blob
+        for raw_sent in sentences:
+            # Compute the start and end indices of the sentence
+            # within the blob
+            start_index = punct_norm_text.index(raw_sent, char_index)
+            char_index += len(raw_sent)
+            end_index = start_index + len(raw_sent)
+            
+            # Split sentence into word tokens 
+            stripped_sentence = word_tokenize(raw_sent)
+            
+            # Join word tokens into a single sentence                
+            clean_sent = " ".join(stripped_sentence)
+            
+            # Sentences share the same models as their parent blob
+            sent = Sentence(raw_sent, start_index=start_index, end_index=end_index, clean_sentence=clean_sent)
+            self._sentences.append(sent)
+        return self._sentences
