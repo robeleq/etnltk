@@ -1,37 +1,36 @@
 # coding: utf8
 from __future__ import unicode_literals
 
-split_chars = lambda char: list(char.strip().split(" "))
-merge_chars = lambda char: char.strip().replace(" ", "|")
-group_chars = lambda char: char.strip().replace(" ", "")
 
-_ethiopic = r"\u1200-\u137F"
+import string
 
-_ethiopic_punct = (
-    r"፠ ፡ ። ፣ ፤ ፥ ፦ ፧ ፨"
+from etnltk.common.utils import (
+    merge_chars,
+    split_chars,
+    group_chars
 )
 
-_ethiopic_sent_punct = (
+from etnltk.common.ethiopic import (
+    ETHIOPIC_PUNCT
+)
+
+_amharic_sent_punct = (
     r"፤ ፥ ።"
 )
 
-_ethiopic_abbrev_punct = (
+_amharic_abbrev_punct = (
     r". /"
 )
 
-_asscii_punct = (
-    r' ! " \# \$ % \& \' \( \) \* \+ , \- \. / : ; < = > \? @ \[ \\ \] \^ _ ` \{ \| \} \~ \''
-)
-
+# all ASCII punctuation characters
+_asscii_punct = string.punctuation
 ASSCII_PUNCT = merge_chars(_asscii_punct)
-ETHIOPIC_PUNCT = merge_chars(_ethiopic_punct)
-ETHIOPIC_ABBREV_PUNCT = merge_chars(_ethiopic_abbrev_punct)
-ETHIOPIC_SENT_PUNCT = merge_chars(_ethiopic_sent_punct)
 
-_asscii_ethiopic_puncts =  ASSCII_PUNCT + ETHIOPIC_PUNCT
+AMHARIC_SENT_PUNCT = merge_chars(_amharic_sent_punct)
 
-table = str.maketrans('', '', _ethiopic_abbrev_punct.strip().replace(" ", ""))
+AMHARIC_ABBREV_PUNCT = merge_chars(_amharic_abbrev_punct)
 
-# list of all punctuation marks except the ". /" (because we want
-# to keep as one token the words like ዓ.ም, ጠ/ሚ etc.
-NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS =  "".join([punct.translate(table) for punct in _asscii_ethiopic_puncts])
+table = str.maketrans('', '', group_chars(_amharic_abbrev_punct))
+_asscii_ethiopic_puncts = ASSCII_PUNCT + ETHIOPIC_PUNCT
+
+ASSCII_ETHIOPIC_PUNCTS_WITHOUT_AMHARIC_ABBREV_PUNCT = " ".join([punct.translate(table) for punct in _asscii_ethiopic_puncts])

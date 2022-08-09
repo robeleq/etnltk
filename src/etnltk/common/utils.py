@@ -2,8 +2,14 @@
 #
 # Standard libraries
 import re
+from re import Pattern
 import unicodedata
+from typing import AnyStr
 
+
+split_chars = lambda char: list(char.strip().split(" "))
+merge_chars = lambda char: char.strip().replace(" ", "|")
+group_chars = lambda char: char.strip().replace(" ", "")
 
 def is_english_punct(char) -> bool:
     """Checks whether `chars` is a punctuation character."""
@@ -54,6 +60,6 @@ def remove_control_char(s):
     return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
 
-def regex_replace(text: str, pattern: str, replace: str = '') -> str:
+def regex_replace(text: str, pattern: Pattern[AnyStr], replace: str = '') -> str:
     """ Uses a regular expression to perform substitution on a sequence of characters. """
     return pattern.sub(replace, text, re.UNICODE)

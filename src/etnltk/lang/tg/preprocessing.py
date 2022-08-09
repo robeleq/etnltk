@@ -6,138 +6,61 @@ import re
 from typing import List, Optional, Union
 
 # Third party libraries
-import emoji
 from textsearch import TextSearch
 
 # etnltk libraries
-from .punctuation import ASSCII_PUNCT, ETHIOPIC_PUNCT, NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS, TIGRIGNA_ABBREV_PUNCT
+from .punctuation import (
+    ASSCII_PUNCT,
+    TIGRIGNA_ABBREV_PUNCT,
+    ASSCII_ETHIOPIC_PUNCTS_WITHOUT_TIGRIGNA_ABBREV_PUNCT
+)
+
 from .stop_words import STOP_WORDS
 from etnltk.common.utils import is_chinese_char, regex_replace
-from etnltk.common.ethiopic import is_ethiopic, is_ethiopic_digit
-     
-# Regular expression
-REGEX_PATTERN_URLS = re.compile(r'https?://\S+|www\.\S+')
-REGEX_PATTERN_TAGS = re.compile(r"(?x)<[^>]+>| &([a-z0-9]+|\#[0-9]{1,6}|\#x[0-9a-f]{1,6});")
-REGEX_PATTERN_EMAIL = re.compile(r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}')
-REGEX_ETHIOPIC_PUNCTUATION = re.compile(ETHIOPIC_PUNCT)
-REGEX_PATTERN_ASCII = re.compile(r'[A-Za-z]+')
-REGEX_PATTERN_DIGITS = re.compile(r"\d+")
-REGEX_PATTERN_ARABIC = re.compile('([\u0621-\u064A]+)')
-# TODO: add more special characters
-SPECIAL_CHARACTERS = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£"”“`‘´‚,„»«「」『』（）〔〕【】《》〈〉'
+from etnltk.common.ethiopic import is_ethiopic, is_ethiopic_digit, ETHIOPIC_PUNCT
 
-def remove_whitespaces(text: str) -> str:
-    """Remove extra spaces, tabs, and new lines 
-    from a text string
-    """
-    return " ".join(text.split())
 
-def remove_links(text: str) -> str:
-    """Remove URLs from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_URLS, replace='')
-
-def remove_tags(text: str) -> str:
-    """Remove HTML tags from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_TAGS, replace='')
-
-def remove_emojis(text: str) -> str:
-    """Remove emojis from a text string
-    """
-    return emoji.replace_emoji(text, replace='')
-
-def remove_email(text: str) -> str:
-    """Remove email adresses from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_EMAIL, replace='')
-
-def remove_punct(text: str, abbrev: bool = True):
-    # TODO: remove punctuations like ዓ.ም.
-    if not abbrev:
-        # List of punctuation includes tigrigna short form punctuations `.` and `/` ```
-        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT + TIGRIGNA_ABBREV_PUNCT
-    else:
-        # List of punctuation excluded ethiopic short form punctuations `.`, `/`
-        # remove `.` and `/` punctuation from punctuations
-        string_punctuations = NO_ABBREV_ASSCII_ETHIOPIC_PUNCTS
-
-    return _remove_punct(text, punctuation=string_punctuations)
-
-def _remove_punct(text: str, punctuation) -> str:
+def remove_punctuation(text: str, keep_abbrev: bool = True):
     """Remove punctuations from a text string
     """
-    if not len(punctuation.strip()):
+    if keep_abbrev:
+        # Removes all punctuations (ethiopic and ascii) except apostrophes, period and slash
+        # those are Tigrigna abbreviation punctuation marks
+        string_punctuations = ASSCII_ETHIOPIC_PUNCTS_WITHOUT_TIGRIGNA_ABBREV_PUNCT
+    else:
+        # Removes all punctuations (ethiopic and ascii) marks
+        string_punctuations = ASSCII_PUNCT + ETHIOPIC_PUNCT + "’"
+
+    return _remove_punct(text, punctuations=string_punctuations)
+
+
+def _remove_punct(text: str, punctuations) -> str:
+    if not len(punctuations.strip()):
         raise ValueError(f"{__name__}: `punctuation` can't be `empty string`")
-    
+
     # Split into words by white space
     words = text.split()
 
     # Remove punctuation from each word
-    table = str.maketrans('', '', punctuation)
+    table = str.maketrans('', '', punctuations)
 
     return " ".join([w.translate(table) for w in words])
 
-def remove_ethiopic_punct(text: str) -> str:
-    """Remove ethiopic punctuations from a text string
-    """
-    return regex_replace(text, pattern=REGEX_ETHIOPIC_PUNCTUATION, replace='')
-
-def remove_special_characters(text: str) -> str:
-    """Removes special characters from a text string
-    """
-    return text.translate(str.maketrans('', '', SPECIAL_CHARACTERS))
-
-def remove_digits(text: str):
-    """Remove all digits from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_DIGITS, replace='')
-
-def remove_ethiopic_digits(text):
-    """Remove all ethiopic digits from a text string
-    """
-    output = [
-        char for char in text if not is_ethiopic_digit(char)
-    ]
-    return "".join(output)
-
-def remove_english_chars(text: str) -> str:
-    """Remove ascii characters from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_ASCII, replace='')
-
-def remove_arabic_chars(text: str) -> str:
-    """Remove arabic characters and numerals from a text string
-    """
-    return regex_replace(text, pattern=REGEX_PATTERN_ARABIC, replace='')
-
-def remove_chinese_chars(text: str) -> str:
-    """Remove chinese characters from a text string
-    """
-    output = [
-        char for char in text if not is_chinese_char(ord(char))
-    ]
-    return "".join(output)
-
-def remove_non_ethiopic(text: str):
-    """Remove non ethioipc characters from a text string
-    """
-    ethiopic_only = "".join([char for char in text if (is_ethiopic(char) or ord(char) == 32)])
-    return ethiopic_only
 
 def replace_apostrophe(text: str) -> str:
     # ደኣ'ምበር -> ደኣ እምበር
     regex_pattern = re.compile(r"'[^a-zA-Z0-9'+\r\n\s]|’[^a-zA-Z0-9’+\r\n\s]")
-    matchs = re.findall(regex_pattern, text)
-    if matchs:
+    matches = re.findall(regex_pattern, text)
+    if matches:
         replacer = " እ"
-        replacers = {match: f"{replacer}{match[1]}" for match in matchs}
-        
+        replacers = {match: f"{replacer}{match[1]}" for match in matches}
+
         ts = TextSearch("sensitive", "object")
         ts.add(replacers)
-        
-        return ts.replace(text) 
+
+        return ts.replace(text)
     return text
+
 
 def remove_stopwords(text_or_list: Union[str, List[str]], stop_words: Optional[set] = None) -> List[str]:
     """ Remove stop words
@@ -153,11 +76,11 @@ def remove_stopwords(text_or_list: Union[str, List[str]], stop_words: Optional[s
         stop_words = STOP_WORDS
     if isinstance(stop_words, list):
         stop_words = set(stop_words)
-        
+
     if isinstance(text_or_list, str):
         tokens = text_or_list.split()
         result_tokens = [token for token in tokens if token not in stop_words]
     else:
         result_tokens = [token for token in text_or_list
-                            if (token not in stop_words and token is not None and len(token) > 0)]
+                         if (token not in stop_words and token is not None and len(token) > 0)]
     return result_tokens
