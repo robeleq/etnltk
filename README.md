@@ -55,11 +55,14 @@
      - Here is a another example of performing text cleaning on a piece of plaintext using `clean_amharic` function:
 
     ```python
-    from etnltk.lang.am import (
-      preprocessing,
-      clean_amharic
+    from etnltk.common.preprocessing import (
+      remove_emojis,
+      remove_digits,
+      remove_english_chars,
     )
-
+    from etnltk.common.ethiopic import remove_ethiopic_punctuation
+    from etnltk.lang.am import clean_amharic
+      
     sample_text = """
       ሚያዝያ 14፣ 2014 ዓ.ም 🤗 በአገር ደረጃ የሰው ሰራሽ አስተውሎት /Artificial Intelligence/ አሁን ካለበት ዝቅተኛ ደረጃ ወደ ላቀ ደረጃ ለማድረስ፣ ሃገርኛ ቋንቋዎችን ለዓለም ተደራሽ ለማድረግ፣ አገራዊ አቅምን ለማሳደግ እና ተጠቃሚ ለመሆን በጋራ አብሮ መስራቱ እጅግ ጠቃሚ ነው፡፡
 
@@ -68,15 +71,14 @@
 
     # Define a custom preprocessor pipeline
     custom_pipeline = [
-      preprocessing.remove_emojis, 
-      preprocessing.remove_digits,
-      preprocessing.remove_ethiopic_punct,
-      preprocessing.remove_english_chars, 
-      preprocessing.remove_punct
+      remove_emojis, 
+      remove_digits,
+      remove_english_chars,
+      remove_ethiopic_punctuation
     ]
     
     # `clean_amharic` function takes a custom pipeline, if not uses the default pipeline
-    cleaned = clean_amharic(sample_text, abbrev=False, pipeline=custom_pipeline)
+    cleaned = clean_amharic(sample_text, keep_abbrev=False, pipeline=custom_pipeline)
 
     # print the `clean` text:
     print(cleaned)
@@ -123,7 +125,7 @@
     - Within Amharic focument, annotations are further stored in `Words`.
 
     ```python
-    from etnltk import AmharicDocument
+    from etnltk import Amharic
 
     sample_text = """
       “ተረኛ፣ ተረኛ!” አለ ነርሱ። ወይዘሮ
@@ -244,26 +246,51 @@
     print(normalized_text)
     # output: በቋንቋዉ ህግጋት መሰረት ፅሁፎችን ማዋቀር እና መመስረት
 
-## Features
+## Text preprocessing
 
-- Text preprocessing functions.
+- The common text preprocessing functions.
+
+    ``` python
+    from etnltk.common import preprocessing
+    ```
+
+    | Function                  | Description                                                 |
+    |---------------------------|-------------------------------------------------------------|
+    | remove_whitespaces        | Remove extra spaces, tabs, and new lines from a text string |
+    | remove_special_characters | Remove extra special characters from a text string          |
+    | remove_links              | Remove URLs from a text string                              |
+    | remove_tags               | Remove HTML tags from a text string                         |
+    | remove_emojis             | Remove emojis from a text string                            |
+    | remove_email              | Remove email adresses from a text string                    |
+    | remove_digits             | Remove all digits from a text string                        |
+    | remove_english_chars      | Remove ascii characters from a text string                  |
+    | remove_arabic_chars       | Remove arabic characters and numerals from a text string    |
+    | remove_chinese_chars      | Remove chinese characters from a text string                |
+
+- Ethiopic specific preprocessing functions
+
+    ``` python
+    from etnltk.common.ethiopic import (
+        remove_ethiopic_digits,
+        remove_ethiopic_punctuation,
+        remove_non_ethiopic
+    )
+    ```
+
+    | Function                    | Description                                                        |
+    |-----------------------------|--------------------------------------------------------------------|
+    | remove_ethiopic_digits      | Remove all ethiopic digits from a text string "፩ ፪ ፫ ፬ ፭ ፮ ፯ ፰ ፱ ፲"  |
+    | remove_ethiopic_punctuation | Remove ethiopic punctuations from a text string "፠ ፡ ። ፣ ፤ ፥ ፦ ፧ ፨"  |
+    | remove_non_ethiopic         | Remove non ethiopic characters from a text string                  |
+
+- Amharic specific preprocessing functions
 
     ``` python
     from etnltk.lang.am import preprocessing
     ```
 
-    | Function | Description |
-    -----------|-------------|
-    | remove_whitespaces | Remove extra spaces, tabs, and new lines from a text string
-    | remove_links | Remove URLs from a text string
-    | remove_tags | Remove HTML tags from a text string
-    | remove_emojis | Remove emojis from a text string
-    | remove_email | Remove email adresses from a text string
-    | remove_digits | Remove all digits from a text string
-    | remove_english_chars | Remove ascii characters from a text string
-    | remove_arabic_chars | Remove arabic characters and numerals from a text string
-    | remove_chinese_chars | Remove chinese characters from a text string
-    | remove_ethiopic_digits | Remove all ethiopic digits from a text string
-    | remove_ethiopic_punct | Remove ethiopic punctuations from a text string
-    | remove_non_ethiopic | Remove non ethioipc characters from a text string
-    | remove_stopwords | Remove stop words
+    | Function           | Description                                                     |
+    |--------------------|-----------------------------------------------------------------|
+    | remove_punctuation | Remove Amharic sentence punctuations from a text string "፤ ፥ ።"  |
+    | remove_stopwords   | Remove stopwords from a text string                             |
+  
