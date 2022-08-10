@@ -58,7 +58,7 @@
     from etnltk.common.preprocessing import (
       remove_emojis,
       remove_digits,
-      remove_english_chars,
+      remove_english_chars
     )
     from etnltk.common.ethiopic import remove_ethiopic_punctuation
     from etnltk.lang.am import clean_amharic
